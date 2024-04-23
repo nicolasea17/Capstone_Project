@@ -2,8 +2,8 @@ import streamlit as st
 
 def main():
     st.title('Welcome to Your Application')
-    st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/Incoding%20Picture.png?raw=true', use_column_width=True)
-    st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/OSB%20Picture.png?raw=true', use_column_width=True)
+    st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/Incoding%20Picture.png?raw=true', width=int(1/3*500))
+    st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/OSB%20Picture.png?raw=true', width=int(1/3*500))
 
     username = st.text_input('Username')
     password = st.text_input('Password', type='password')
