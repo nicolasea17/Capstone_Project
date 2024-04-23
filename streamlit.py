@@ -4,7 +4,7 @@ def main():
     st.title('Welcome to Your Application')
 
     # Create two columns for the images
-    col1, col2 = st.beta_columns(2)
+    col1, col2 = st.columns(2)
 
     # Display the first image in the first column
     with col1:
