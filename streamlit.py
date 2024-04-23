@@ -3,7 +3,7 @@ import streamlit as st
 def main():
     st.title("Welcome to Incoding's Page")
 
-    # Display the first image
+    # Display the first image with a border
     st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/Incoding%20Picture.png?raw=true', 
              width=250,
              output_format='PNG', # Ensure that the output format is PNG to support CSS styling
@@ -14,7 +14,7 @@ def main():
     # Add spacing
     st.write("")
 
-    # Display the second image
+    # Display the second image with a border
     st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/OSB%20Picture.png?raw=true', 
              width=250,
              output_format='PNG', # Ensure that the output format is PNG to support CSS styling
