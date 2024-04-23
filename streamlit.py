@@ -30,11 +30,14 @@ def login_page():
 
 # Page after successful login
 def prediction_page():
-    st.title("Website Development Hourly Rate Prediction")
+    st.markdown("<h1 style='text-align: center; font-size: 24px;'>Website Development Hourly Rate Prediction</h1>", unsafe_allow_html=True)
 
-    # Display the image centered
+    # Display the image smaller
     st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/MachineLearning_PriceElasticity.png?raw=true',
-             use_column_width=True)
+             width=300)
+
+    # Description of the Machine Learning model
+    st.write("Please provide information on the customer's posting to predict the hourly rate. This tool uses a machine learning model to analyze historical data and determine the most accurate hourly rates based on similar project descriptions and client budgets.")
 
 def main():
     # Check if logged in
