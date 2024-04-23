@@ -25,3 +25,45 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+
+
+
+
+
+import streamlit as st
+
+# Login Page
+def login_page():
+    st.title("Welcome to Incoding's Page")
+
+    username = st.text_input('Username')
+    password = st.text_input('Password', type='password')
+
+    if st.button('Sign In'):
+        if username == 'admin' and password == '1234':
+            st.success('Logged in as {}'.format(username))
+            return True  # Return True to indicate successful login
+        else:
+            st.error('Invalid credentials')
+    return False  # Return False if login fails
+
+
+# Page after successful login
+def prediction_page():
+    st.title("Website Development Hourly Rate Prediction")
+
+    # Display the image centered
+    st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/MachineLearning_PriceElasticity.png?raw=true',
+             use_column_width=True)
+
+
+def main():
+    if login_page():  # If login is successful
+        prediction_page()  # Display the prediction page
+
+
+if __name__ == '__main__':
+    main()
+
