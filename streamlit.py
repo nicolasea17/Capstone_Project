@@ -20,10 +20,9 @@ def login_page():
     if st.button('Sign In'):
         if username == 'admin' and password == '1234':
             st.success('Logged in as {}'.format(username))
-            return True  # Return True to indicate successful login
+            st.experimental_rerun()  # Rerun the script to hide the login page
         else:
             st.error('Invalid credentials')
-    return False  # Return False if login fails
 
 # Page after successful login
 def prediction_page():
@@ -34,8 +33,10 @@ def prediction_page():
              use_column_width=True)
 
 def main():
-    if login_page():  # If login is successful
-        st.empty()  # Clear the contents of the page
+    login_page()  # Display the login page
+
+    # If the script is rerun due to successful login, display the prediction page
+    if st.session_state.login_successful:
         prediction_page()  # Display the prediction page
 
 if __name__ == '__main__':
