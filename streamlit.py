@@ -17,7 +17,7 @@ def main():
     password = st.text_input('Password', type='password')
 
     if st.button('Sign In'):
-        if username == 'your_username' and password == 'your_password':
+        if username == 'admin' and password == '1234':
             st.success('Logged in as {}'.format(username))
             # Redirect to another page or perform actions after login
         else:
