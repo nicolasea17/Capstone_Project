@@ -2,8 +2,16 @@ import streamlit as st
 
 def main():
     st.title('Welcome to Your Application')
-    st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/Incoding%20Picture.png?raw=true', width=int(1/3*500))
-    st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/OSB%20Picture.png?raw=true', width=int(1/3*500))
+
+    col1, col2 = st.columns(2)  # Divide the page into two columns
+
+    with col1:
+        st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/Incoding%20Picture.png?raw=true', 
+                 width=250)  # Set the width of the image
+
+    with col2:
+        st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/OSB%20Picture.png?raw=true', 
+                 width=250)  # Set the width of the image
 
     username = st.text_input('Username')
     password = st.text_input('Password', type='password')
