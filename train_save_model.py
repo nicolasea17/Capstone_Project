@@ -4,8 +4,6 @@ import numpy as np
 import requests
 import joblib
 from io import BytesIO
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.compose import ColumnTransformer
 
 # Function to load the trained Extra Trees model from GitHub
 @st.cache(allow_output_mutation=True)
@@ -16,11 +14,13 @@ def load_model():
     model = joblib.load(BytesIO(response.content))
     return model
 
+model = load_model()  # Load model
+
 # Initialize login status in session state
 if 'login_successful' not in st.session_state:
     st.session_state.login_successful = False
 
-# Function to display the login page
+# Login Page
 def login_page():
     st.title("Welcome to Incoding's Page")
     col1, col2 = st.columns(2)  # Divide the page into two columns
@@ -41,15 +41,15 @@ def login_page():
         else:
             st.error('Invalid credentials')
 
-# Function to display the prediction page
+# Prediction Page
 def prediction_page():
     st.markdown("<h1 style='text-align: center; font-size: 24px;'>Website Development Hourly Rate Prediction</h1>", unsafe_allow_html=True)
-
-    # Create a single column to center the image
     col_image = st.columns([1, 2, 1])  # This creates three columns, and the image will be in the middle one
 
     with col_image[1]:  # Index 1 is the middle column
         st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/MachineLearning_PriceElasticity.png?raw=true', width=300)
+
+    st.write("Please provide information on the customer's posting to predict the hourly rate. This tool uses a machine learning model to analyze historical data and determine the most accurate hourly rates based on similar project descriptions and client budgets.")
 
     # User inputs for the prediction
     job_title = st.selectbox('Job Title', ['Job Title 1', 'Job Title 2'])  # Add actual options
@@ -58,10 +58,10 @@ def prediction_page():
     technical_tool = st.selectbox('Technical Tool Used', ['Tool 1', 'Tool 2'])  # Add actual options
     applicants_num = st.selectbox('Number of Applicants', ['Less than 5', '5-10', 'More than 10'])  # Add actual options
     client_country = st.selectbox('Client Country', ['Country 1', 'Country 2'])  # Add actual options
-    spent = st.number_input('Budget Spent', min_value=0)
+    spent = st.number_input('Budget Spent')
 
     if st.button('Predict Hourly Rate'):
-        # Assume the preprocessing and feature preparation are the same as used during model training
+        # Assuming the preprocessing and feature preparation are the same as used during model training
         input_data = pd.DataFrame({
             'Job Title': [job_title],
             'EX_level_demand': [ex_level_demand],
@@ -71,9 +71,6 @@ def prediction_page():
             'Client_Country': [client_country],
             'Spent($)': [spent]
         })
-
-        # Load the model
-        model = load_model()
 
         # Predict using the loaded model
         prediction = model.predict(input_data)
