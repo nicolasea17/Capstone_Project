@@ -1,7 +1,7 @@
 import streamlit as st
 
 def main():
-    st.title('Welcome to Incoding\'s Page')
+    st.title("Welcome to Incoding\u2019s Page")
 
     col1, col2 = st.columns(2)  # Divide the page into two columns
 
