@@ -29,12 +29,24 @@ def main():
         display: block;
         margin-left: auto;
         margin-right: auto;
+        opacity: 0; /* Hide images by default */
     }
     @keyframes fadeIn {
         from { opacity: 0; }
         to   { opacity: 1; }
     }
     </style>
+    """, unsafe_allow_html=True)
+
+    # Trigger animation with JavaScript
+    st.markdown("""
+    <script>
+    setTimeout(function(){
+        document.querySelectorAll(".stImage > img").forEach(function(img){
+            img.style.opacity = "1";
+        });
+    }, 100);
+    </script>
     """, unsafe_allow_html=True)
 
     username = st.text_input('Username')
