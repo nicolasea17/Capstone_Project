@@ -3,16 +3,14 @@ import streamlit as st
 def main():
     st.title('Welcome to Your Application')
 
-    # Create two columns for the images
-    col1, col2 = st.columns(2)
+    # Display the first image
+    st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/Incoding%20Picture.png?raw=true', use_column_width='always')
 
-    # Display the first image in the first column
-    with col1:
-        st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/Incoding%20Picture.png?raw=true', use_column_width='always')
+    # Display a space between the images
+    st.text("")
 
-    # Display the second image in the second column
-    with col2:
-        st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/OSB%20Picture.png?raw=true', use_column_width='always')
+    # Display the second image
+    st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/OSB%20Picture.png?raw=true', use_column_width='always')
 
     username = st.text_input('Username')
     password = st.text_input('Password', type='password')
