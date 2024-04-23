@@ -34,10 +34,12 @@ def prediction_page():
              use_column_width=True)
 
 def main():
+    login_container = st.empty()  # Create an empty container to hold the login page
     login_successful = login_page()  # Display the login page and get the login status
 
-    # If login is successful, hide the login page and display the prediction page
+    # If login is successful, hide the login page container and display the prediction page
     if login_successful:
+        login_container.empty()  # Hide the login page
         prediction_page()
 
 if __name__ == '__main__':
