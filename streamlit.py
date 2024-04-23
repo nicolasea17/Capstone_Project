@@ -3,24 +3,24 @@ import streamlit as st
 def main():
     st.title("Welcome to Incoding's Page")
 
-    # Display the first image with a border
+    # Display the first image with a fade-in animation
     st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/Incoding%20Picture.png?raw=true', 
              width=250,
              output_format='PNG', # Ensure that the output format is PNG to support CSS styling
              caption="Incoding Picture",
              use_column_width='always',
-             style='border: 2px solid #cccccc; border-radius: 10px; padding: 10px;')
+             style='border: 2px solid #cccccc; border-radius: 10px; padding: 10px; animation: fadeIn 2s;')
 
     # Add spacing
     st.write("")
 
-    # Display the second image with a border
+    # Display the second image with a fade-in animation
     st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/OSB%20Picture.png?raw=true', 
              width=250,
              output_format='PNG', # Ensure that the output format is PNG to support CSS styling
              caption="OSB Picture",
              use_column_width='always',
-             style='border: 2px solid #cccccc; border-radius: 10px; padding: 10px;')
+             style='border: 2px solid #cccccc; border-radius: 10px; padding: 10px; animation: fadeIn 2s;')
 
     # Align images in the middle
     st.markdown("""
@@ -29,6 +29,10 @@ def main():
         display: block;
         margin-left: auto;
         margin-right: auto;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
     }
     </style>
     """, unsafe_allow_html=True)
