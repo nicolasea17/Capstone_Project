@@ -1,5 +1,9 @@
 import streamlit as st
 
+# Initialize login status in session state
+if 'login_successful' not in st.session_state:
+    st.session_state.login_successful = False
+
 # Login Page
 def login_page():
     st.title("Welcome to Incoding's Page")
@@ -20,6 +24,7 @@ def login_page():
     if st.button('Sign In'):
         if username == 'admin' and password == '1234':
             st.success('Logged in as {}'.format(username))
+            st.session_state.login_successful = True  # Set login status to True
             st.experimental_rerun()  # Rerun the script to hide the login page
         else:
             st.error('Invalid credentials')
