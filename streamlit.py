@@ -32,9 +32,12 @@ def login_page():
 def prediction_page():
     st.markdown("<h1 style='text-align: center; font-size: 24px;'>Website Development Hourly Rate Prediction</h1>", unsafe_allow_html=True)
 
-    # Display the image smaller
-    st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/MachineLearning_PriceElasticity.png?raw=true',
-             width=300)
+    # Create a single column to center the image
+    col_image = st.columns([1, 2, 1])  # This creates three columns, and the image will be in the middle one
+
+    with col_image[1]:  # Index 1 is the middle column
+        st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/MachineLearning_PriceElasticity.png?raw=true',
+                 width=300)  # Display the image centered and smaller
 
     # Description of the Machine Learning model
     st.write("Please provide information on the customer's posting to predict the hourly rate. This tool uses a machine learning model to analyze historical data and determine the most accurate hourly rates based on similar project descriptions and client budgets.")
