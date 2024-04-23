@@ -1,16 +1,27 @@
 import streamlit as st
 
 def main():
-    st.title('Welcome to Your Application')
+    st.title("Welcome to Incoding's Page")
 
     # Display the first image
-    st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/Incoding%20Picture.png?raw=true', use_column_width='always')
+    st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/Incoding%20Picture.png?raw=true', width=250)
 
-    # Display a space between the images
-    st.text("")
+    # Add spacing
+    st.write("")
 
     # Display the second image
-    st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/OSB%20Picture.png?raw=true', use_column_width='always')
+    st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/OSB%20Picture.png?raw=true', width=250)
+
+    # Align images in the middle
+    st.markdown("""
+    <style>
+    .stImage > img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
     username = st.text_input('Username')
     password = st.text_input('Password', type='password')
