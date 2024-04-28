@@ -61,7 +61,6 @@ def login_page():
             st.experimental_rerun()
         else:
             st.error('Invalid credentials')
-
 import logging
 
 # Configure logging
@@ -118,13 +117,27 @@ def prediction_page():
         logging.info(f"Input data: {input_data}")
 
         try:
-            # Predict using the loaded model
-            prediction = model.predict(input_data)
+            # Preprocess input data
+            preprocessed_data = preprocess_input_data(input_data)
+            logging.info(f"Preprocessed data: {preprocessed_data}")
+
+            # Predict using the preprocessed data
+            prediction = predict(preprocessed_data)
             logging.info(f"Prediction result: {prediction}")
             st.write(f"The predicted hourly rate is ${prediction[0]:.2f}")
         except Exception as e:
             logging.error(f"Error occurred during prediction: {e}")
             st.error("An error occurred during prediction. Please check the logs for more information.")
+
+def preprocess_input_data(input_data):
+    # Preprocessing steps here, if any
+    # For now, just return the input data as is
+    return input_data
+
+def predict(preprocessed_data):
+    # Predict using the loaded model
+    prediction = model.predict(preprocessed_data)
+    return prediction
 
 # Main function to control page rendering
 def main():
