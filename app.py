@@ -67,11 +67,6 @@ import logging
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
-import logging
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-
 # Prediction Page
 def prediction_page():
     logging.info("Prediction page called.")
@@ -123,10 +118,13 @@ def prediction_page():
         logging.info(f"Input data: {input_data}")
 
         try:
-            # Predict using the loaded model
-            prediction = model.predict(input_data)
-            logging.info(f"Prediction result: {prediction}")
-            st.write(f"The predicted hourly rate is ${prediction[0]:.2f}")
+            if spent <= 0:
+                st.error("Budget Spent must be greater than 0.")
+            else:
+                # Predict using the loaded model
+                prediction = model.predict(input_data)
+                logging.info(f"Prediction result: {prediction}")
+                st.write(f"The predicted hourly rate is ${prediction[0]:.2f}")
         except Exception as e:
             logging.error(f"Error occurred during prediction: {e}")
             st.error("An error occurred during prediction. Please check the logs for more information.")
@@ -140,4 +138,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
