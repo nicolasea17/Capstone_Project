@@ -62,8 +62,15 @@ def login_page():
         else:
             st.error('Invalid credentials')
 
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
 # Prediction Page
 def prediction_page():
+    logging.info("Prediction page called.")
+
     st.markdown("<h1 style='text-align: center; font-size: 24px;'>Website Development Hourly Rate Prediction</h1>", unsafe_allow_html=True)
     col_image = st.columns([1, 2, 1])
 
@@ -96,6 +103,7 @@ def prediction_page():
     spent = st.number_input('Budget Spent')
 
     if st.button('Predict Hourly Rate'):
+        logging.info("Predict button clicked.")
         # Preprocessing the input data
         input_data = pd.DataFrame({
             'Job Title': [job_title],
@@ -106,9 +114,16 @@ def prediction_page():
             'Client_Country': [client_country],
             'Spent($)': [spent]
         })
-        # Predict using the loaded model
-        prediction = model.predict(input_data)
-        st.write(f"The predicted hourly rate is ${prediction[0]:.2f}")
+        
+        logging.info(f"Input data: {input_data}")
+
+        try:
+            # Predict using the loaded model
+            prediction = model.predict(input_data)
+            logging.info(f"Prediction result: {prediction}")
+            st.write(f"The predicted hourly rate is ${prediction[0]:.2f}")
+        except Exception as e:
+            logging.error(f"Error occurred during prediction: {e}")
 
 # Main function to control page rendering
 def main():
