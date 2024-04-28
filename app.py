@@ -13,7 +13,7 @@ def load_data():
 data = load_data()
 
 # Load model
-@st.cache(allow_output_mutation=False)
+@st.cache(allow_output_mutation=True)
 def load_model():
     # Assuming the model is saved locally in the same directory as the script
     model = joblib.load('random_forest_model.joblib')
