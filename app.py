@@ -75,13 +75,21 @@ def prediction_page():
     # User inputs for the prediction
     job_title_options = data['Job Title'].unique().tolist()
     ex_level_demand_options = ['Entry Level', 'Intermediate', 'Expert']
+    description_options = [
+        'Energy and Utilities', 'Automotive', 'Small Business/Local Business', 'Non-Profit and NGOs',
+        'Real Estate', 'Retail (Non-E-commerce)', 'E-Commerce', 'Telecommunications', 'Manufacturing and Industrial',
+        'Finance and Banking', 'Media and Entertainment', 'Insurance', 'Healthcare', 'Construction and Engineering',
+        'Personal Blogs/Portfolios', 'Hospitality and Travel', 'Government', 'Education', 'Professional Services',
+        'Technology and SaaS', 'Technology', 'Retail', 'Finance', 'Entertainment', 'Manufacturing', 'Transportation',
+        'Legal', 'Marketing', 'Hospitality'
+    ]
     technical_tool_options = data['Technical_Tool'].unique().tolist()
     applicants_num_options = ['Less than 5', '10 to 15', '15 to 20', '20 to 50', '50+']
     client_country_options = data['Client_Country'].unique().tolist()
 
     job_title = st.selectbox('Job Title', job_title_options)
     ex_level_demand = st.selectbox('Experience Level Demand', ex_level_demand_options)
-    description = st.text_input('Project Description')
+    description = st.selectbox('Project Description', description_options)
     technical_tool = st.selectbox('Technical Tool Used', technical_tool_options)
     applicants_num = st.selectbox('Number of Applicants', applicants_num_options)
     client_country = st.selectbox('Client Country', client_country_options)
