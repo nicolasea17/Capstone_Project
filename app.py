@@ -12,12 +12,28 @@ def load_data():
 
 data = load_data()
 
+import streamlit as st
+import joblib
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
 # Load model
 @st.cache(allow_output_mutation=True)
 def load_model():
-    # Assuming the model is saved locally in the same directory as the script
-    model = joblib.load('random_forest_model.joblib')
-    return model
+    # Log that the function is being called
+    logging.info("Loading model...")
+    try:
+        # Assuming the model is saved locally in the same directory as the script
+        model = joblib.load('random_forest_model.joblib')
+        # Log success message
+        logging.info("Model loaded successfully.")
+        return model
+    except Exception as e:
+        # Log error message if model loading fails
+        logging.error("Error loading model:", e)
+        return None
 
 model = load_model()  # Load model
 
