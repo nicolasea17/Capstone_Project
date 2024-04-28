@@ -1,5 +1,5 @@
 streamlit==1.11.0
-pandas==1.4.2
-numpy==1.23.1
-joblib==1.1.0
-scikit-learn==1.0.2
+pandas==1.2.5   # Older, but stable version, compatible with many Python versions
+numpy==1.19.5   # Ensures compatibility with older pandas and Python versions
+joblib==1.0.1   # Compatible with older numpy/pandas
+scikit-learn==0.24.2  # Older stable version, less likely to require complex builds
