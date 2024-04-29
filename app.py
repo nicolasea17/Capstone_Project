@@ -70,7 +70,7 @@ logging.basicConfig(level=logging.INFO)
 def prediction_page():
     logging.info("Prediction page called.")
 
-    st.markdown("<h1 style='text-align: center; font-size: 24px;'>Website Development Hourly Rate Prediction</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; font-size: 24px;'>Customer Tailored Hourly Rate Prediction</h1>", unsafe_allow_html=True)
     col_image = st.columns([1, 2, 1])
 
     with col_image[1]:
