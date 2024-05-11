@@ -322,7 +322,7 @@ def login_page():
     if st.button('Sign In'):
         if username == 'admin' and password == '1234':
             st.session_state.login_successful = True
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.error('Invalid credentials')
 
