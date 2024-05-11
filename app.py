@@ -252,11 +252,9 @@ model, kmeans, preprocessor = load_models()
 
 def preprocess_and_predict(job_title, ex_level_demand, description, technical_tool, applicants_num, client_country, spent):
     try:
-        # Mapping from categories to numbers as per training
         applicants_map = {'Less than 5': 2.5, '10 to 15': 12.5, '15 to 20': 17.5, '20 to 50': 35, '50+': 75}
         ex_level_map = {'Entry Level': 1, 'Intermediate': 2, 'Expert': 3}
 
-        # Prepare the DataFrame as per the preprocessor's expectation
         input_data = pd.DataFrame({
             'Job Title': [job_title],
             'Description': [description],
@@ -264,27 +262,11 @@ def preprocess_and_predict(job_title, ex_level_demand, description, technical_to
             'Client_Country': [client_country],
             'Applicants_Num': [applicants_map[applicants_num]],
             'EX_level_demand': [ex_level_map[ex_level_demand]],
-            'Spent($)': [spent]
+            'Spent($)': [spent],
+            'GDP': [np.log(gdp_data.get(client_country, np.nan))],  # Log transformation of GDP
+            'GDP_cluster': [kmeans.predict([[np.log(gdp_data.get(client_country, np.nan))]])[0]]  # Predicting the GDP cluster
         })
 
-        # Log DataFrame shape and columns to debug
-        logging.info(f"Input DataFrame Shape: {input_data.shape}")
-        logging.info(f"Input DataFrame Columns: {list(input_data.columns)}")
-
-        # GDP Log and Cluster Calculation
-        gdp = gdp_data.get(client_country, np.nan)
-        gdp_log = np.log(gdp if gdp > 0 else np.nan)  # Handle zero or missing GDP gracefully
-        input_data['GDP'] = [gdp_log]
-
-        # Predict GDP cluster
-        gdp_cluster = kmeans.predict(np.array([[gdp_log]]).reshape(-1, 1))[0]
-        input_data['GDP_cluster'] = [gdp_cluster]
-
-        # Log modified DataFrame shape and columns to debug
-        logging.info(f"Modified DataFrame Shape: {input_data.shape}")
-        logging.info(f"Modified DataFrame Columns: {list(input_data.columns)}")
-
-        # Process the input data through the preprocessor pipeline
         processed_data = preprocessor.transform(input_data)
         prediction = model.predict(processed_data)
         return prediction
@@ -294,10 +276,10 @@ def preprocess_and_predict(job_title, ex_level_demand, description, technical_to
 
 def prediction_page():
     st.title("Customer Tailored Hourly Rate Prediction")
-    # Assume these options are loaded or defined somewhere in your script
-    job_title_options = ['Software Developer', 'Data Scientist', 'Project Manager']
-    description_options = ['Energy and Utilities', 'Automotive', 'Small Business']
-    technical_tool_options = ['Python', 'Excel', 'Tableau']
+
+    job_title_options = data['Job Title'].unique().tolist()
+    description_options = data['Description'].unique().tolist()
+    technical_tool_options = data['Technical_Tool'].unique().tolist()
     applicants_num_options = ['Less than 5', '10 to 15', '15 to 20', '20 to 50', '50+']
     client_country_options = list(gdp_data.keys())
 
@@ -311,7 +293,7 @@ def prediction_page():
 
     if st.button('Predict Hourly Rate'):
         prediction = preprocess_and_predict(job_title, ex_level_demand, description, technical_tool, applicants_num, client_country, spent)
-        if prediction:
+        if prediction is not None:
             st.write(f"The predicted hourly rate is ${prediction[0]:.2f}")
         else:
             st.error("Prediction failed. Please check the logs.")
