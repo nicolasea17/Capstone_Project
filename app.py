@@ -150,9 +150,16 @@ def prediction_page():
             st.error("An error occurred during prediction. Please check the logs for more information.")
 
 def preprocess_input_data(input_data):
-    # Preprocessing steps here, if any
-    # For now, just return the input data as is
-    return input_data
+    logging.info("Preprocessing input data...")
+    try:
+        # Apply the preprocessing pipeline
+        processed_data = preprocessor.transform(input_data)
+        logging.info("Input data processed successfully.")
+        return processed_data
+    except Exception as e:
+        logging.error(f"Error during preprocessing: {e}")
+        raise
+
 
 def predict(preprocessed_data):
     # Predict using the loaded model
