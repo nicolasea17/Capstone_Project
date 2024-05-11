@@ -252,6 +252,7 @@ model, kmeans, preprocessor = load_models()
 
 def preprocess_and_predict(job_title, ex_level_demand, description, technical_tool, applicants_num, client_country, spent):
     try:
+        # Mapping and transformation logic
         applicants_map = {'Less than 5': 2.5, '10 to 15': 12.5, '15 to 20': 17.5, '20 to 50': 35, '50+': 75}
         ex_level_map = {'Entry Level': 1, 'Intermediate': 2, 'Expert': 3}
 
@@ -262,11 +263,16 @@ def preprocess_and_predict(job_title, ex_level_demand, description, technical_to
             'Client_Country': [client_country],
             'Applicants_Num': [applicants_map[applicants_num]],
             'EX_level_demand': [ex_level_map[ex_level_demand]],
-            'Spent($)': [spent],
-            'GDP': [np.log(gdp_data.get(client_country, np.nan))],  # Log transformation of GDP
-            'GDP_cluster': [kmeans.predict([[np.log(gdp_data.get(client_country, np.nan))]])[0]]  # Predicting the GDP cluster
+            'Spent($)': [spent]
         })
 
+        # Adding GDP and GDP_cluster columns
+        gdp = np.log(gdp_data.get(client_country, np.nan))
+        gdp_cluster = kmeans.predict([[gdp]])[0]
+        input_data['GDP'] = gdp
+        input_data['GDP_cluster'] = gdp_cluster
+
+        # Process the data through the pipeline
         processed_data = preprocessor.transform(input_data)
         prediction = model.predict(processed_data)
         return prediction
@@ -276,7 +282,6 @@ def preprocess_and_predict(job_title, ex_level_demand, description, technical_to
 
 def prediction_page():
     st.title("Customer Tailored Hourly Rate Prediction")
-
     job_title_options = data['Job Title'].unique().tolist()
     description_options = data['Description'].unique().tolist()
     technical_tool_options = data['Technical_Tool'].unique().tolist()
