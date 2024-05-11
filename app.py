@@ -224,13 +224,12 @@ gdp_data = {
     'Montserrat': 72,  # Estimate, no recent data
     'Tuvalu': 63
 }
-
 # Convert GDP data into DataFrame for log transformation and clustering
 gdp_df = pd.DataFrame(list(gdp_data.items()), columns=['Client_Country', 'GDP'])
 gdp_df['GDP'] = np.log(gdp_df['GDP'])
 
 # Function to load models
-@st.cache_resource
+@st.cache(allow_output_mutation=True)
 def load_models():
     logging.info("Loading models...")
     try:
@@ -246,28 +245,12 @@ def load_models():
 model, kmeans, preprocessor = load_models()
 
 # Function to preprocess and predict
-def preprocess_and_predict(job_title, ex_level_demand, description, technical_tool, applicants_num, client_country, spent):
+def preprocess_and_predict(input_data):
     try:
-        # Map client country to GDP and calculate GDP_cluster
-        gdp = gdp_data.get(client_country, np.nan)  # Use NaN for countries not in the dictionary
-        if np.isnan(gdp):
-            gdp_log = np.log(np.mean(list(gdp_data.values())))  # Default to mean log(GDP) if country not found
-        else:
-            gdp_log = np.log(gdp)
-
-        gdp_cluster = kmeans.predict([[gdp_log]])[0]  # Predict cluster
-
-        # Create the input DataFrame
-        input_data = pd.DataFrame({
-            'Job Title': [job_title],
-            'EX_level_demand': [ex_level_demand],
-            'Description': [description],
-            'Technical_Tool': [technical_tool],
-            'Applicants_Num': [applicants_num],
-            'Client_Country': [client_country],
-            'Spent($)': [spent],
-            'GDP_cluster': [gdp_cluster]
-        })
+        # Calculate GDP log and predict GDP_cluster
+        input_data['GDP'] = input_data['Client_Country'].map(gdp_data)
+        input_data['GDP'] = np.log(input_data['GDP'])
+        input_data['GDP_cluster'] = kmeans.predict(input_data[['GDP']])
 
         # Process the input data through the preprocessor pipeline
         processed_data = preprocessor.transform(input_data)
@@ -296,7 +279,16 @@ def prediction_page():
     spent = st.number_input('Budget Spent', format="%.2f")
 
     if st.button('Predict Hourly Rate'):
-        prediction = preprocess_and_predict(job_title, ex_level_demand, description, technical_tool, applicants_num, client_country, spent)
+        input_data = pd.DataFrame({
+            'Job Title': [job_title],
+            'EX_level_demand': [ex_level_demand],
+            'Description': [description],
+            'Technical_Tool': [technical_tool],
+            'Applicants_Num': [applicants_num],
+            'Client_Country': [client_country],
+            'Spent($)': [spent]
+        })
+        prediction = preprocess_and_predict(input_data)
         if prediction is not None:
             st.write(f"The predicted hourly rate is ${prediction[0]:.2f}")
         else:
