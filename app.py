@@ -19,20 +19,13 @@ def load_models():
         model = None
 
     try:
-        kmeans = joblib.load('kmeans_model.joblib')
-        logging.info("KMeans model loaded successfully.")
-    except Exception as e:
-        logging.error(f"Error loading KMeans model: {e}")
-        kmeans = None
-
-    try:
         preprocessor = joblib.load('preprocessor.joblib')
         logging.info("Preprocessor loaded successfully.")
     except Exception as e:
         logging.error(f"Error loading preprocessor: {e}")
         preprocessor = None
 
-    if not model or not kmeans or not preprocessor:
+    if not model or not preprocessor:
         st.error("Failed to load one or more models. Please check the logs for details.")
         st.stop()
     
@@ -52,12 +45,19 @@ def preprocess_and_predict(input_data):
 def prediction_page():
     st.title("Customer Tailored Hourly Rate Prediction")
 
-    job_title = st.text_input('Job Title')
+    # Dummy options for dropdowns
+    job_title_options = ['Software Developer', 'Data Scientist', 'Project Manager']
+    description_options = ['Energy and Utilities', 'Automotive', 'Small Business']
+    technical_tool_options = ['Python', 'Excel', 'Tableau']
+    applicants_num_options = ['Less than 5', '10 to 15', '15 to 20', '20 to 50', '50+']
+    client_country_options = ['USA', 'Canada', 'UK', 'Germany', 'France']
+
+    job_title = st.selectbox('Job Title', job_title_options)
     ex_level_demand = st.selectbox('Experience Level Demand', ['Entry Level', 'Intermediate', 'Expert'])
-    description = st.text_input('Project Description')
-    technical_tool = st.text_input('Technical Tool Used')
-    applicants_num = st.selectbox('Number of Applicants', ['Less than 5', '10 to 15', '15 to 20', '20 to 50', '50+'])
-    client_country = st.text_input('Client Country')
+    description = st.selectbox('Project Description', description_options)
+    technical_tool = st.selectbox('Technical Tool Used', technical_tool_options)
+    applicants_num = st.selectbox('Number of Applicants', applicants_num_options)
+    client_country = st.selectbox('Client Country', client_country_options)
     spent = st.number_input('Budget Spent', format="%.2f")
 
     if st.button('Predict Hourly Rate'):
