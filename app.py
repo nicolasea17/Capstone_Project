@@ -23,21 +23,21 @@ import logging
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
-# Load model
-@st.cache(allow_output_mutation=True)
-def load_model():
-    # Log that the function is being called
-    logging.info("Loading model...")
+# Load the RandomForest, KMeans, and preprocessing models
+@st.cache_resource
+def load_models():
+    logging.info("Loading models...")
     try:
-        # Assuming the model is saved locally in the same directory as the script
         model = joblib.load('random_forest_model.joblib')
-        # Log success message
-        logging.info("Model loaded successfully.")
-        return model
+        kmeans = joblib.load('kmeans_model.joblib')
+        preprocessor = joblib.load('preprocessor.joblib')
+        logging.info("Models loaded successfully.")
+        return model, kmeans, preprocessor
     except Exception as e:
-        # Log error message if model loading fails
-        logging.error("Error loading model:", e)
-        return None
+        logging.error(f"Error loading models: {e}")
+        return None, None, None
+
+model, kmeans, preprocessor = load_models()
 
 # Load the RandomForest, KMeans, and preprocessing models
 @st.cache(allow_output_mutation=True)
@@ -75,12 +75,13 @@ def login_page():
     username = st.text_input('Username')
     password = st.text_input('Password', type='password')
 
-    if st.button('Sign In'):
-        if username == 'admin' and password == '1234':
-            st.session_state.login_successful = True
-            st.experimental_rerun()
-        else:
-            st.error('Invalid credentials')
+if st.button('Sign In'):
+    if username == 'admin' and password == '1234':
+        st.session_state.login_successful = True
+        st.rerun()
+    else:
+        st.error('Invalid credentials')
+
 import logging
 
 # Configure logging
