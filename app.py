@@ -7,61 +7,76 @@ import logging
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
-# Load data
-@st.cache
-def load_data():
-    data = pd.read_csv('combined_dataset1-1300.csv')
-    # Additional preprocessing can be placed here
-    return data
-
-data = load_data()
-
-import streamlit as st
-import joblib
-import logging
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-
-# Load the RandomForest, KMeans, and preprocessing models
+# Function to load models
 @st.cache_resource
 def load_models():
     logging.info("Loading models...")
     try:
         model = joblib.load('random_forest_model.joblib')
-        kmeans = joblib.load('kmeans_model.joblib')
-        preprocessor = joblib.load('preprocessor.joblib')
-        logging.info("Models loaded successfully.")
-        return model, kmeans, preprocessor
+        logging.info("RandomForest model loaded successfully.")
     except Exception as e:
-        logging.error(f"Error loading models: {e}")
-        return None, None, None
+        logging.error(f"Error loading RandomForest model: {e}")
+        model = None
 
-model, kmeans, preprocessor = load_models()
-
-# Load the RandomForest, KMeans, and preprocessing models
-@st.cache(allow_output_mutation=True)
-def load_models():
-    logging.info("Loading models...")
     try:
-        model = joblib.load('random_forest_model.joblib')
         kmeans = joblib.load('kmeans_model.joblib')
-        preprocessor = joblib.load('preprocessor.joblib')
-        logging.info("Models loaded successfully.")
-        return model, kmeans, preprocessor
+        logging.info("KMeans model loaded successfully.")
     except Exception as e:
-        logging.error(f"Error loading models: {e}")
-        return None, None, None
+        logging.error(f"Error loading KMeans model: {e}")
+        kmeans = None
 
-model, kmeans, preprocessor = load_models()
+    try:
+        preprocessor = joblib.load('preprocessor.joblib')
+        logging.info("Preprocessor loaded successfully.")
+    except Exception as e:
+        logging.error(f"Error loading preprocessor: {e}")
+        preprocessor = None
 
-model = load_model()  # Load model
+    if not model or not kmeans or not preprocessor:
+        st.error("Failed to load one or more models. Please check the logs for details.")
+        st.stop()
+    
+    return model, preprocessor
 
-# Initialize login status in session state
-if 'login_successful' not in st.session_state:
-    st.session_state.login_successful = False
+model, preprocessor = load_models()
 
-# Login Page
+def preprocess_and_predict(input_data):
+    try:
+        processed_data = preprocessor.transform(input_data)
+        prediction = model.predict(processed_data)
+        return prediction
+    except Exception as e:
+        logging.error(f"Error during preprocessing or prediction: {e}")
+        return None
+
+def prediction_page():
+    st.title("Customer Tailored Hourly Rate Prediction")
+
+    job_title = st.text_input('Job Title')
+    ex_level_demand = st.selectbox('Experience Level Demand', ['Entry Level', 'Intermediate', 'Expert'])
+    description = st.text_input('Project Description')
+    technical_tool = st.text_input('Technical Tool Used')
+    applicants_num = st.selectbox('Number of Applicants', ['Less than 5', '10 to 15', '15 to 20', '20 to 50', '50+'])
+    client_country = st.text_input('Client Country')
+    spent = st.number_input('Budget Spent', format="%.2f")
+
+    if st.button('Predict Hourly Rate'):
+        input_data = pd.DataFrame({
+            'Job Title': [job_title],
+            'EX_level_demand': [ex_level_demand],
+            'Description': [description],
+            'Technical_Tool': [technical_tool],
+            'Applicants_Num': [applicants_num],
+            'Client_Country': [client_country],
+            'Spent($)': [spent]
+        })
+        
+        prediction = preprocess_and_predict(input_data)
+        if prediction is not None:
+            st.write(f"The predicted hourly rate is ${prediction[0]:.2f}")
+        else:
+            st.error("Prediction failed. Please check the logs.")
+
 def login_page():
     st.title("Welcome to Incoding's Page")
     col1, col2 = st.columns(2)
@@ -75,100 +90,17 @@ def login_page():
     username = st.text_input('Username')
     password = st.text_input('Password', type='password')
 
-if st.button('Sign In'):
-    if username == 'admin' and password == '1234':
-        st.session_state.login_successful = True
-        st.rerun()
-    else:
-        st.error('Invalid credentials')
+    if st.button('Sign In'):
+        if username == 'admin' and password == '1234':
+            st.session_state.login_successful = True
+            st.experimental_rerun()
+        else:
+            st.error('Invalid credentials')
 
-import logging
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-
-# Prediction Page
-def prediction_page():
-    logging.info("Prediction page called.")
-
-    st.markdown("<h1 style='text-align: center; font-size: 24px;'>Customer Tailored Hourly Rate Prediction</h1>", unsafe_allow_html=True)
-    col_image = st.columns([1, 2, 1])
-
-    with col_image[1]:
-        st.image('https://github.com/nicolasea17/Capstone_Project/blob/main/MachineLearning_PriceElasticity.png?raw=true', width=300)
-
-    st.write("Please provide information on the customer's posting to predict the hourly rate.")
-
-    # User inputs for the prediction
-    job_title_options = data['Job Title'].unique().tolist()
-    ex_level_demand_options = ['Entry Level', 'Intermediate', 'Expert']
-    description_options = [
-        'Energy and Utilities', 'Automotive', 'Small Business/Local Business', 'Non-Profit and NGOs',
-        'Real Estate', 'Retail (Non-E-commerce)', 'E-Commerce', 'Telecommunications', 'Manufacturing and Industrial',
-        'Finance and Banking', 'Media and Entertainment', 'Insurance', 'Healthcare', 'Construction and Engineering',
-        'Personal Blogs/Portfolios', 'Hospitality and Travel', 'Government', 'Education', 'Professional Services',
-        'Technology and SaaS', 'Technology', 'Retail', 'Finance', 'Entertainment', 'Manufacturing', 'Transportation',
-        'Legal', 'Marketing', 'Hospitality'
-    ]
-    technical_tool_options = data['Technical_Tool'].unique().tolist()
-    applicants_num_options = ['Less than 5', '10 to 15', '15 to 20', '20 to 50', '50+']
-    client_country_options = data['Client_Country'].unique().tolist()
-
-    job_title = st.selectbox('Job Title', job_title_options)
-    ex_level_demand = st.selectbox('Experience Level Demand', ex_level_demand_options)
-    description = st.selectbox('Project Description', description_options)
-    technical_tool = st.selectbox('Technical Tool Used', technical_tool_options)
-    applicants_num = st.selectbox('Number of Applicants', applicants_num_options)
-    client_country = st.selectbox('Client Country', client_country_options)
-    spent = st.number_input('Budget Spent')
-
-    if st.button('Predict Hourly Rate'):
-        logging.info("Predict button clicked.")
-        # Preprocessing the input data
-        input_data = pd.DataFrame({
-            'Job Title': [job_title],
-            'EX_level_demand': [ex_level_demand],
-            'Description': [description],
-            'Technical_Tool': [technical_tool],
-            'Applicants_Num': [applicants_num],
-            'Client_Country': [client_country],
-            'Spent($)': [spent]
-        })
-        
-        logging.info(f"Input data: {input_data}")
-
-        try:
-            # Preprocess input data
-            preprocessed_data = preprocess_input_data(input_data)
-            logging.info(f"Preprocessed data: {preprocessed_data}")
-
-            # Predict using the preprocessed data
-            prediction = predict(preprocessed_data)
-            logging.info(f"Prediction result: {prediction}")
-            st.write(f"The predicted hourly rate is ${prediction[0]:.2f}")
-        except Exception as e:
-            logging.error(f"Error occurred during prediction: {e}")
-            st.error("An error occurred during prediction. Please check the logs for more information.")
-
-def preprocess_input_data(input_data):
-    logging.info("Preprocessing input data...")
-    try:
-        # Apply the preprocessing pipeline
-        processed_data = preprocessor.transform(input_data)
-        logging.info("Input data processed successfully.")
-        return processed_data
-    except Exception as e:
-        logging.error(f"Error during preprocessing: {e}")
-        raise
-
-
-def predict(preprocessed_data):
-    # Predict using the loaded model
-    prediction = model.predict(preprocessed_data)
-    return prediction
-
-# Main function to control page rendering
 def main():
+    if 'login_successful' not in st.session_state:
+        st.session_state.login_successful = False
+
     if st.session_state.login_successful:
         prediction_page()
     else:
