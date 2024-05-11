@@ -4,6 +4,15 @@ import numpy as np
 import joblib
 import logging
 
+# Load data
+@st.cache
+def load_data():
+    data = pd.read_csv('combined_dataset1-1300.csv')
+    # Additional preprocessing can be placed here
+    return data
+
+data = load_data()
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 
