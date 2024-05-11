@@ -23,14 +23,10 @@ def load_models():
 
 model, kmeans, preprocessor = load_models()
 
-def preprocess_and_predict(input_data, client_country_gdp):
+def preprocess_and_predict(input_data):
     try:
-        # Calculate log of GDP and predict the cluster
-        input_data['GDP'] = np.log(client_country_gdp)
-        input_data['GDP_cluster'] = kmeans.predict(input_data[['GDP']])
-        
         # Process the input data through the preprocessor pipeline
-        processed_data = preprocessor.transform(input_data.drop(['GDP'], axis=1))
+        processed_data = preprocessor.transform(input_data)
         prediction = model.predict(processed_data)
         return prediction
     except Exception as e:
@@ -40,16 +36,20 @@ def preprocess_and_predict(input_data, client_country_gdp):
 def prediction_page():
     st.title("Customer Tailored Hourly Rate Prediction")
     
-    # Manual entries for the sake of completeness
-    job_title = st.text_input('Job Title')
+    # Dropdown options
+    job_title_options = ['Software Developer', 'Data Scientist', 'Project Manager']
+    description_options = ['Energy and Utilities', 'Automotive', 'Small Business']
+    technical_tool_options = ['Python', 'Excel', 'Tableau']
+    applicants_num_options = ['Less than 5', '10 to 15', '15 to 20', '20 to 50', '50+']
+    client_country_options = ['USA', 'Canada', 'UK', 'Germany', 'France']
+
+    job_title = st.selectbox('Job Title', job_title_options)
     ex_level_demand = st.selectbox('Experience Level Demand', ['Entry Level', 'Intermediate', 'Expert'])
-    description = st.text_input('Project Description')
-    technical_tool = st.text_input('Technical Tool Used')
-    applicants_num = st.selectbox('Number of Applicants', ['Less than 5', '10 to 15', '15 to 20', '20 to 50', '50+'])
-    client_country = st.text_input('Client Country')
+    description = st.selectbox('Project Description', description_options)
+    technical_tool = st.selectbox('Technical Tool Used', technical_tool_options)
+    applicants_num = st.selectbox('Number of Applicants', applicants_num_options)
+    client_country = st.selectbox('Client Country', client_country_options)
     spent = st.number_input('Budget Spent', format="%.2f")
-    # Assuming GDP data is manually entered or derived from another source
-    client_country_gdp = st.number_input('GDP of Client Country', format="%.2f")
 
     if st.button('Predict Hourly Rate'):
         input_data = pd.DataFrame({
@@ -62,12 +62,11 @@ def prediction_page():
             'Spent($)': [spent]
         })
 
-        prediction = preprocess_and_predict(input_data, client_country_gdp)
+        prediction = preprocess_and_predict(input_data)
         if prediction is not None:
             st.write(f"The predicted hourly rate is ${prediction[0]:.2f}")
         else:
             st.error("Prediction failed. Please check the logs.")
-
 def login_page():
     st.title("Welcome to Incoding's Page")
     col1, col2 = st.columns(2)
