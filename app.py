@@ -224,12 +224,13 @@ gdp_data = {
     'Montserrat': 72,  # Estimate, no recent data
     'Tuvalu': 63
 }
+
 # Convert GDP data into DataFrame for log transformation and clustering
 gdp_df = pd.DataFrame(list(gdp_data.items()), columns=['Client_Country', 'GDP'])
 gdp_df['GDP'] = np.log(gdp_df['GDP'])
 
 # Function to load models
-@st.cache(allow_output_mutation=True)
+@st.cache_resource
 def load_models():
     logging.info("Loading models...")
     try:
