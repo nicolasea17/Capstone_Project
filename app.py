@@ -242,12 +242,8 @@ def load_models():
         model = joblib.load('random_forest_model.joblib')
         kmeans = joblib.load('kmeans_model.joblib')
         preprocessor = joblib.load('preprocessor.joblib')
-        if model and kmeans and preprocessor:
-            logging.info("All models loaded successfully.")
-            return model, kmeans, preprocessor
-        else:
-            logging.error("One or more models failed to load.")
-            return None, None, None
+        logging.info("All models loaded successfully.")
+        return model, kmeans, preprocessor
     except Exception as e:
         logging.error(f"Error loading models: {e}")
         return None, None, None
@@ -256,21 +252,35 @@ model, kmeans, preprocessor = load_models()
 
 def preprocess_and_predict(job_title, ex_level_demand, description, technical_tool, applicants_num, client_country, spent):
     try:
-        gdp = gdp_data.get(client_country, np.nan)  # Handle countries not in the dictionary
-        gdp_log = np.log(gdp) if not np.isnan(gdp) else np.log(np.mean(list(gdp_data.values())))
+        # Convert applicants number and experience level demand based on your mapping
+        applicants_map = {'Less than 5': 2.5, '10 to 15': 12.5, '15 to 20': 17.5, '20 to 50': 35, '50+': 75}
+        ex_level_map = {'Entry Level': 1, 'Intermediate': 2, 'Expert': 3}
+
+        applicants_value = applicants_map[applicants_num]
+        ex_level_value = ex_level_map[ex_level_demand]
+
+        # Map client country to GDP and calculate GDP_cluster
+        gdp = gdp_data.get(client_country, np.nan)  # Use NaN for countries not in the dictionary
+        if np.isnan(gdp):
+            gdp_log = np.log(np.mean(list(gdp_data.values())))  # Default to mean log(GDP) if country not found
+        else:
+            gdp_log = np.log(gdp)
+
         gdp_cluster = kmeans.predict(np.array([[gdp_log]]).reshape(1, -1))[0]
 
+        # Create the input DataFrame
         input_data = pd.DataFrame({
             'Job Title': [job_title],
-            'EX_level_demand': [ex_level_demand],
+            'EX_level_demand': [ex_level_value],
             'Description': [description],
             'Technical_Tool': [technical_tool],
-            'Applicants_Num': [applicants_num],
+            'Applicants_Num': [applicants_value],
             'Client_Country': [client_country],
             'Spent($)': [spent],
             'GDP_cluster': [gdp_cluster]
         })
 
+        # Process the input data through the preprocessor pipeline
         processed_data = preprocessor.transform(input_data)
         prediction = model.predict(processed_data)
         return prediction
