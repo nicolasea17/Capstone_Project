@@ -5,7 +5,7 @@ import joblib
 import logging
 
 # Load data
-@st.cache
+@st.cache_resource
 def load_data():
     data = pd.read_csv('combined_dataset1-1300.csv')
     # Additional preprocessing can be placed here
