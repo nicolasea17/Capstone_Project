@@ -2,6 +2,10 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 
 # Load data
 @st.cache
@@ -34,6 +38,22 @@ def load_model():
         # Log error message if model loading fails
         logging.error("Error loading model:", e)
         return None
+
+# Load the RandomForest, KMeans, and preprocessing models
+@st.cache(allow_output_mutation=True)
+def load_models():
+    logging.info("Loading models...")
+    try:
+        model = joblib.load('random_forest_model.joblib')
+        kmeans = joblib.load('kmeans_model.joblib')
+        preprocessor = joblib.load('preprocessor.joblib')
+        logging.info("Models loaded successfully.")
+        return model, kmeans, preprocessor
+    except Exception as e:
+        logging.error(f"Error loading models: {e}")
+        return None, None, None
+
+model, kmeans, preprocessor = load_models()
 
 model = load_model()  # Load model
 
