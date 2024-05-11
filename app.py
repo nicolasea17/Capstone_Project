@@ -225,18 +225,14 @@ gdp_data = {
     'Tuvalu': 63
 }
 
-# Convert GDP data into DataFrame for log transformation and clustering
-gdp_df = pd.DataFrame(list(gdp_data.items()), columns=['Client_Country', 'GDP'])
-gdp_df['GDP'] = np.log(gdp_df['GDP'])
-
-# Function to load models
+# Load models and preprocessors
 @st.cache_resource
 def load_models():
     logging.info("Loading models...")
     try:
-        model = joblib.load('random_forest_model.joblib')
-        kmeans = joblib.load('kmeans_model.joblib')
-        preprocessor = joblib.load('preprocessor.joblib')
+        model = joblib.load('path/to/random_forest_model.joblib')
+        kmeans = joblib.load('path/to/kmeans_model.joblib')
+        preprocessor = joblib.load('path/to/preprocessor.joblib')
         logging.info("All models loaded successfully.")
         return model, kmeans, preprocessor
     except Exception as e:
@@ -245,13 +241,28 @@ def load_models():
 
 model, kmeans, preprocessor = load_models()
 
-# Function to preprocess and predict
-def preprocess_and_predict(input_data):
+def preprocess_and_predict(job_title, ex_level_demand, description, technical_tool, applicants_num, client_country, spent):
     try:
-        # Calculate GDP log and predict GDP_cluster
-        input_data['GDP'] = input_data['Client_Country'].map(gdp_data)
-        input_data['GDP'] = np.log(input_data['GDP'])
-        input_data['GDP_cluster'] = kmeans.predict(input_data[['GDP']])
+        # Map client country to GDP and calculate GDP_cluster
+        gdp = gdp_data.get(client_country, np.nan)  # Use NaN for countries not in the dictionary
+        if np.isnan(gdp):
+            gdp_log = np.log(np.mean(list(gdp_data.values())))  # Default to mean log(GDP) if country not found
+        else:
+            gdp_log = np.log(gdp)
+
+        gdp_cluster = kmeans.predict([[gdp_log]])[0]  # Predict cluster
+
+        # Create the input DataFrame
+        input_data = pd.DataFrame({
+            'Job Title': [job_title],
+            'EX_level_demand': [ex_level_demand],
+            'Description': [description],
+            'Technical_Tool': [technical_tool],
+            'Applicants_Num': [applicants_num],
+            'Client_Country': [client_country],
+            'Spent($)': [spent],
+            'GDP_cluster': [gdp_cluster]
+        })
 
         # Process the input data through the preprocessor pipeline
         processed_data = preprocessor.transform(input_data)
@@ -264,10 +275,10 @@ def preprocess_and_predict(input_data):
 def prediction_page():
     st.title("Customer Tailored Hourly Rate Prediction")
 
-    # Dropdown options
-    job_title_options = ['Software Developer', 'Data Scientist', 'Project Manager']
-    description_options = ['Energy and Utilities', 'Automotive', 'Small Business']
-    technical_tool_options = ['Python', 'Excel', 'Tableau']
+    # Dropdown options using your original categories
+    job_title_options = data['Job Title'].unique().tolist()
+    description_options = data['Description'].unique().tolist()
+    technical_tool_options = data['Technical_Tool'].unique().tolist()
     applicants_num_options = ['Less than 5', '10 to 15', '15 to 20', '20 to 50', '50+']
     client_country_options = list(gdp_data.keys())  # Countries from GDP data
 
@@ -280,16 +291,7 @@ def prediction_page():
     spent = st.number_input('Budget Spent', format="%.2f")
 
     if st.button('Predict Hourly Rate'):
-        input_data = pd.DataFrame({
-            'Job Title': [job_title],
-            'EX_level_demand': [ex_level_demand],
-            'Description': [description],
-            'Technical_Tool': [technical_tool],
-            'Applicants_Num': [applicants_num],
-            'Client_Country': [client_country],
-            'Spent($)': [spent]
-        })
-        prediction = preprocess_and_predict(input_data)
+        prediction = preprocess_and_predict(job_title, ex_level_demand, description, technical_tool, applicants_num, client_country, spent)
         if prediction is not None:
             st.write(f"The predicted hourly rate is ${prediction[0]:.2f}")
         else:
