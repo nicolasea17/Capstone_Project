@@ -239,11 +239,15 @@ gdp_data = {
 def load_models():
     logging.info("Loading models...")
     try:
-        model = joblib.load('path/to/random_forest_model.joblib')
-        kmeans = joblib.load('path/to/kmeans_model.joblib')
-        preprocessor = joblib.load('path/to/preprocessor.joblib')
-        logging.info("All models loaded successfully.")
-        return model, kmeans, preprocessor
+        model = joblib.load('random_forest_model.joblib')
+        kmeans = joblib.load('kmeans_model.joblib')
+        preprocessor = joblib.load('preprocessor.joblib')
+        if model and kmeans and preprocessor:
+            logging.info("All models loaded successfully.")
+            return model, kmeans, preprocessor
+        else:
+            logging.error("One or more models failed to load.")
+            return None, None, None
     except Exception as e:
         logging.error(f"Error loading models: {e}")
         return None, None, None
@@ -252,16 +256,10 @@ model, kmeans, preprocessor = load_models()
 
 def preprocess_and_predict(job_title, ex_level_demand, description, technical_tool, applicants_num, client_country, spent):
     try:
-        # Map client country to GDP and calculate GDP_cluster
-        gdp = gdp_data.get(client_country, np.nan)  # Use NaN for countries not in the dictionary
-        if np.isnan(gdp):
-            gdp_log = np.log(np.mean(list(gdp_data.values())))  # Default to mean log(GDP) if country not found
-        else:
-            gdp_log = np.log(gdp)
+        gdp = gdp_data.get(client_country, np.nan)  # Handle countries not in the dictionary
+        gdp_log = np.log(gdp) if not np.isnan(gdp) else np.log(np.mean(list(gdp_data.values())))
+        gdp_cluster = kmeans.predict(np.array([[gdp_log]]).reshape(1, -1))[0]
 
-        gdp_cluster = kmeans.predict([[gdp_log]])[0]  # Predict cluster
-
-        # Create the input DataFrame
         input_data = pd.DataFrame({
             'Job Title': [job_title],
             'EX_level_demand': [ex_level_demand],
@@ -273,7 +271,6 @@ def preprocess_and_predict(job_title, ex_level_demand, description, technical_to
             'GDP_cluster': [gdp_cluster]
         })
 
-        # Process the input data through the preprocessor pipeline
         processed_data = preprocessor.transform(input_data)
         prediction = model.predict(processed_data)
         return prediction
@@ -283,13 +280,11 @@ def preprocess_and_predict(job_title, ex_level_demand, description, technical_to
 
 def prediction_page():
     st.title("Customer Tailored Hourly Rate Prediction")
-
-    # Dropdown options using your original categories
     job_title_options = data['Job Title'].unique().tolist()
     description_options = data['Description'].unique().tolist()
     technical_tool_options = data['Technical_Tool'].unique().tolist()
     applicants_num_options = ['Less than 5', '10 to 15', '15 to 20', '20 to 50', '50+']
-    client_country_options = list(gdp_data.keys())  # Countries from GDP data
+    client_country_options = list(gdp_data.keys())
 
     job_title = st.selectbox('Job Title', job_title_options)
     ex_level_demand = st.selectbox('Experience Level Demand', ['Entry Level', 'Intermediate', 'Expert'])
@@ -301,7 +296,7 @@ def prediction_page():
 
     if st.button('Predict Hourly Rate'):
         prediction = preprocess_and_predict(job_title, ex_level_demand, description, technical_tool, applicants_num, client_country, spent)
-        if prediction is not None:
+        if prediction:
             st.write(f"The predicted hourly rate is ${prediction[0]:.2f}")
         else:
             st.error("Prediction failed. Please check the logs.")
